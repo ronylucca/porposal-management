@@ -11,8 +11,32 @@ datasource db {
 }
 
 model User {
-  id       String @id
+  id       Int    @id @default(autoincrement())
   email    String @unique
   name     String @unique
   password String
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String     @unique
+  Proposal    Proposal[]
+}
+
+model Costumer {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  industry String
+  state    String
+  city     String
+  Proposal Proposal?
+}
+
+model Proposal {
+  id         Int      @id @default(autoincrement())
+  Costumer   Costumer @relation(fields: [costumerId], references: [id])
+  costumerId Int      @unique
+  Product    Product  @relation(fields: [productId], references: [id])
+  productId  Int      @unique
 }

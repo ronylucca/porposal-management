@@ -13,7 +13,7 @@ datasource db {
 model User {
   id       Int    @id @default(autoincrement())
   email    String @unique
-  name     String @unique
+  name     String
   password String
 }
 
@@ -21,22 +21,24 @@ model Product {
   id          Int        @id @default(autoincrement())
   name        String     @unique
   description String     @unique
-  Proposal    Proposal[]
+  proposals   Proposal[]
 }
 
 model Costumer {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  email    String
   industry String
   state    String
   city     String
-  Proposal Proposal?
+  proposal Proposal?
 }
 
 model Proposal {
   id         Int      @id @default(autoincrement())
-  Costumer   Costumer @relation(fields: [costumerId], references: [id])
+  costumer   Costumer @relation(fields: [costumerId], references: [id])
   costumerId Int      @unique
-  Product    Product  @relation(fields: [productId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
   productId  Int      @unique
+  delivered  Boolean
 }

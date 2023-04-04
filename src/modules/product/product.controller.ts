@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Product } from '@prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -10,18 +10,28 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  async getProducts() {
-    return this.productService.getProducts();
+  async getAll() {
+    return await this.productService.getAll();
   }
 
   @Get(':id')
   async getProduct(@Param('id') id: number): Promise<Product> {
-    return this.productService.getProductsById(id);
+    return this.productService.getById(Number(id));
   }
 
   @Post()
   @ApiBody({ type: CreateProductDto })
-  async createProduct(@Body() dto: CreateProductDto): Promise<Product> {
+  async create(@Body() dto: CreateProductDto): Promise<Product> {
     return await this.productService.createProduct(dto);
+  }
+
+  @Patch(':id')
+  @ApiBody({ type: CreateProductDto })
+  async update(
+    @Param('id') id: number,
+    @Body() dto: CreateProductDto,
+  ): Promise<Product> {
+    console.log(id);
+    return await this.productService.updateProduct(dto, Number(id));
   }
 }

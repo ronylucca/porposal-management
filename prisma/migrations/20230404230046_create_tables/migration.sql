@@ -17,6 +17,7 @@ CREATE TABLE "Product" (
 CREATE TABLE "Costumer" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
     "industry" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "city" TEXT NOT NULL
@@ -27,15 +28,13 @@ CREATE TABLE "Proposal" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "costumerId" INTEGER NOT NULL,
     "productId" INTEGER NOT NULL,
+    "delivered" BOOLEAN NOT NULL,
     CONSTRAINT "Proposal_costumerId_fkey" FOREIGN KEY ("costumerId") REFERENCES "Costumer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Proposal_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");

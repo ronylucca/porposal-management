@@ -11,10 +11,12 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  name     String
-  password String
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
 }
 
 model Product {
@@ -22,23 +24,30 @@ model Product {
   name        String     @unique
   description String     @unique
   proposals   Proposal[]
+  createdAt   DateTime   @default(now())
+  updateAt    DateTime   @updatedAt
 }
 
 model Costumer {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  email    String
-  industry String
-  state    String
-  city     String
-  proposal Proposal?
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  email     String
+  industry  String
+  state     String
+  city      String
+  createdAt DateTime  @default(now())
+  updateAt  DateTime  @updatedAt
+  proposal  Proposal?
 }
 
 model Proposal {
-  id         Int      @id @default(autoincrement())
-  costumer   Costumer @relation(fields: [costumerId], references: [id])
-  costumerId Int      @unique
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  Int      @unique
-  delivered  Boolean
+  id         Int       @id @default(autoincrement())
+  costumer   Costumer  @relation(fields: [costumerId], references: [id])
+  costumerId Int       @unique
+  product    Product   @relation(fields: [productId], references: [id])
+  productId  Int
+  sentAt     DateTime?
+  price      Decimal
+  createdAt  DateTime  @default(now())
+  updateAt   DateTime  @updatedAt
 }

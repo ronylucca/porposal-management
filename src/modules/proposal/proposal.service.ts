@@ -7,7 +7,7 @@ import {
 import { Proposal } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
-import { MailerService } from '@nestjs-modules/mailer';
+import { ProposalMailService } from './proposal.mail.service';
 
 @Injectable()
 export class ProposalService {
@@ -15,7 +15,7 @@ export class ProposalService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private mailerService: MailerService,
+    private readonly proposalMailService: ProposalMailService,
   ) {}
 
   async getAll() {
@@ -33,16 +33,15 @@ export class ProposalService {
       return await this.prisma.proposal.create({
         data: {
           ...dto,
-          delivered: false,
         },
       });
     } catch (error) {
       this.logger.error(
-        `Could not create user - ${error.message}`,
+        `Could not create proposal - ${error.message}`,
         error.stack,
       );
       throw new BadRequestException(
-        'User could not be crated. Check data request',
+        'Proposal could not be crated. Check data request',
       );
     }
   }
@@ -65,15 +64,11 @@ export class ProposalService {
    * @returns {Proposal}
    * @emits BadRequestException
    */
-  async update(
-    dto: CreateProposalDto,
-    id: number,
-    delivered = false,
-  ): Promise<Proposal> {
+  async update(dto: CreateProposalDto, id: number): Promise<Proposal> {
     try {
       return await this.prisma.proposal.update({
         where: { id: id },
-        data: { delivered: delivered, ...dto },
+        data: { ...dto },
       });
     } catch (error) {
       this.logger.error(
@@ -95,14 +90,36 @@ export class ProposalService {
       throw new NotFoundException('Proposal does not exist for requested Id');
     }
     const { costumer, product } = proposal;
-    console.log(costumer.email);
-    console.log(product.name);
 
-    // await this.mailerService.sendMail({
-    //   to: email,
-    //   from: 'wesley.gado@treinaweb.com.br',
-    //   subject: 'Enviando Email com NestJS',
-    //   html: `<h3 style="color: red">${mensagem}</h3>`,
-    // });
+    try {
+      await this.proposalMailService.sendProposalMail(
+        costumer.email,
+        costumer.name,
+        product.name,
+        Number(proposal.price),
+      );
+    } catch (error) {
+      throw new BadRequestException(
+        'An error ocurred sending Costumer proposal',
+      );
+    }
+    await this.markProposalAsSent(proposal.id);
+  }
+
+  async markProposalAsSent(id: number) {
+    try {
+      await this.prisma.proposal.update({
+        where: { id },
+        data: { sentAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Could not update proposal - ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        'Proposal could not be updated. Check data request',
+      );
+    }
   }
 }

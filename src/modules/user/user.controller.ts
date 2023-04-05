@@ -25,7 +25,8 @@ export class UserController {
   }
 
   @Post()
-  @ApiBearerAuth()
+  @IsPublic()
+  //@ApiBearerAuth()
   @ApiBody({ type: CreateUserDto })
   async create(@Body() dto: CreateUserDto): Promise<User> {
     return await this.userService.create(dto);

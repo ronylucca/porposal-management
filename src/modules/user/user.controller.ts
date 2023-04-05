@@ -11,7 +11,6 @@ import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
-import { LocalAuthGuard } from '../auth/guards/local-auth.guard';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 
 @Controller('user')
@@ -20,7 +19,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get(':id')
-  @IsPublic()
+  @ApiBearerAuth()
   async getUser(@Param('id') id: number): Promise<User> {
     return this.userService.getById(Number(id));
   }
@@ -33,6 +32,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
   @ApiBody({ type: CreateUserDto })
   async update(
     @Param('id') id: number,

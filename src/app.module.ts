@@ -1,14 +1,14 @@
-import { Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
-import { ProductModule } from './modules/product/product.module';
-import { UserModule } from './modules/user/user.module';
-import { CostumerModule } from './modules/costumer/costumer.module';
-import { ProposalModule } from './modules/proposal/proposal.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
-import { AuthModule } from './modules/auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
+import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { CostumerModule } from './modules/costumer/costumer.module';
+import { ProductModule } from './modules/product/product.module';
+import { ProposalModule } from './modules/proposal/proposal.module';
+import { UserModule } from './modules/user/user.module';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
@@ -44,5 +44,6 @@ import { BullModule } from '@nestjs/bull';
       useClass: JwtAuthGuard,
     },
   ],
+  exports: [],
 })
 export class AppModule {}

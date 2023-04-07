@@ -1,3 +1,4 @@
+import { InjectQueue } from '@nestjs/bull';
 import {
   BadRequestException,
   Injectable,
@@ -5,9 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Proposal } from '@prisma/client';
+import { Queue } from 'bull';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProposalDto } from './dto/create-proposal.dto';
-import { ProposalMailService } from './proposal.mail.service';
 
 @Injectable()
 export class ProposalService {
@@ -15,7 +16,7 @@ export class ProposalService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly proposalMailService: ProposalMailService,
+    @InjectQueue('sendMail-queue') private queue: Queue,
   ) {}
 
   async getAll() {
@@ -92,18 +93,19 @@ export class ProposalService {
     const { costumer, product } = proposal;
 
     try {
-      await this.proposalMailService.sendProposalMail(
-        costumer.email,
-        costumer.name,
-        product.name,
-        Number(proposal.price),
-      );
+      await this.queue.add('sendMail-job', {
+        costumerName: costumer.name,
+        productName: product.name,
+        proposalPrice: Number(proposal.price),
+        to: costumer.email,
+        proposalId: proposal.id,
+      });
+      this.logger.log(`sendMail-job added for ${costumer.name}`);
     } catch (error) {
       throw new BadRequestException(
         'An error ocurred sending Costumer proposal',
       );
     }
-    await this.markProposalAsSent(proposal.id);
   }
 
   async markProposalAsSent(id: number) {
